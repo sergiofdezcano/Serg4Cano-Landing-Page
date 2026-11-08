@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
 
 const sections = ['#top', '#videos', '#shorts', '#directos', '#recomendaciones', '#contacto'];
 
@@ -16,6 +17,21 @@ test('nav only links to sections that exist', async ({ page }) => {
   for (const href of await page.locator('.nav__links a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))) {
     await expect(page.locator(href)).toHaveCount(1);
   }
+});
+
+test('hero links to the six social profiles', async ({ page }) => {
+  const profile = JSON.parse(readFileSync(new URL('../../src/data/profile.json', import.meta.url), 'utf8'));
+  const expected = ['youtube', 'kick', 'twitch', 'instagram', 'x', 'discord'].map((id) =>
+    profile.socials.find((s) => s.id === id),
+  );
+  await page.goto('./');
+  const links = page.locator('#top ul.hero__socials > li > a');
+  await expect(links).toHaveCount(6);
+  for (const [i, s] of expected.entries()) {
+    await expect(links.nth(i)).toHaveAttribute('href', s.url);
+    await expect(links.nth(i)).toHaveAccessibleName(`${s.label}: ${s.handle}`);
+  }
+  await expect(page.locator('#top a[href*="tiktok.com"]')).toHaveCount(0);
 });
 
 test('countdown shows a time or live state', async ({ page }) => {
