@@ -1,0 +1,196 @@
+---
+import Icon from './Icon.astro';
+import { videos, social, formatDate } from '../lib/data.js';
+import { cleanTitle } from '../lib/youtube.js';
+
+const [latest, ...rest] = videos.videos;
+const more = rest.slice(0, 6);
+const thumb = (id: string, size = 'hqdefault') => `https://i.ytimg.com/vi/${id}/${size}.jpg`;
+---
+
+{
+  latest && (
+    <section class="section" id="videos" aria-labelledby="videos-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title" id="videos-title">
+            Último <span class="accent">vídeo</span>
+          </h2>
+          <a class="btn" href={social('youtube')?.url} rel="noopener">
+            Todos los vídeos <Icon name="arrow" />
+          </a>
+        </div>
+
+        <article class="feature">
+          <div class="player" data-video={latest.id}>
+            <img src={thumb(latest.id, 'maxresdefault')} alt="" width="1280" height="720" loading="lazy" />
+            <button class="player__play" type="button" aria-label={`Reproducir: ${cleanTitle(latest.title)}`}>
+              <Icon name="play" size={34} />
+            </button>
+          </div>
+          <div class="feature__meta">
+            <time class="label muted" datetime={latest.published}>
+              {formatDate(latest.published)}
+            </time>
+            <h3 class="feature__title">
+              <a href={latest.url} rel="noopener">
+                {cleanTitle(latest.title)}
+              </a>
+            </h3>
+          </div>
+        </article>
+
+        {more.length > 0 && (
+          <ul class="grid" role="list">
+            {more.map((v) => (
+              <li class="tile">
+                <a href={v.url} rel="noopener">
+                  <img src={thumb(v.id, 'mqdefault')} alt="" width="320" height="180" loading="lazy" />
+                  <span class="tile__title">{cleanTitle(v.title)}</span>
+                </a>
+                <time class="label muted" datetime={v.published}>
+                  {formatDate(v.published)}
+                </time>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .feature {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 60rem) {
+    .feature {
+      grid-template-columns: 2fr 1fr;
+      align-items: end;
+      gap: 2rem;
+    }
+  }
+  .player {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--ink-1);
+    overflow: hidden;
+  }
+  .player img,
+  .player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 0;
+  }
+  .player img {
+    transition:
+      transform 0.6s var(--ease-out),
+      filter 0.6s var(--ease-out);
+  }
+  .player:hover img {
+    transform: scale(1.03);
+    filter: brightness(0.85);
+  }
+  .player__play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 5.5rem;
+    height: 4rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    color: #fff;
+    background: var(--blue-fill);
+    clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .player__play:hover {
+    background: var(--blue);
+  }
+  .feature__title {
+    margin-top: 0.5rem;
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    font-stretch: 90%;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+  .feature__title a {
+    text-decoration: none;
+  }
+  .feature__title a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--blue);
+  }
+
+  .grid {
+    list-style: none;
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 2rem 1.25rem;
+  }
+  @media (max-width: 40rem) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 0.75rem;
+    }
+    .tile__title {
+      font-size: 0.95rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+  .tile a {
+    display: block;
+    text-decoration: none;
+  }
+  .tile img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--ink-1);
+    margin-bottom: 0.75rem;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 0.2s;
+  }
+  .tile a:hover img {
+    outline-color: var(--blue);
+  }
+  .tile__title {
+    display: block;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+  .tile time {
+    font-size: 0.95rem;
+  }
+</style>
+
+<script>
+  // Lite embed: load YouTube's player only after the visitor asks for it
+  document.querySelectorAll<HTMLElement>('.player').forEach((player) => {
+    player.querySelector('button')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${player.dataset.video}?autoplay=1&rel=0`;
+      iframe.title = 'Reproductor de YouTube';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      player.replaceChildren(iframe);
+      iframe.focus();
+    });
+  });
+</script>

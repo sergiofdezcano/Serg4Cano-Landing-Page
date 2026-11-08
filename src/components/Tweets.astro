@@ -1,0 +1,90 @@
+---
+import Icon from './Icon.astro';
+import { tweets, social, formatDate } from '../lib/data.js';
+---
+
+{
+  tweets.length > 0 && (
+    <section class="section" id="tweets" aria-labelledby="tweets-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title" id="tweets-title">
+            Desde <span class="accent">X</span>
+          </h2>
+          <a class="btn" href={social('x')?.url} rel="noopener">
+            <Icon name="x" /> Seguir
+          </a>
+        </div>
+        <ul class="tweets" role="list">
+          {tweets.map((t) => (
+            <li>
+              <blockquote class="tweet" cite={t.url}>
+                <p class="tweet__text">{t.text}</p>
+                <footer class="tweet__meta label muted">
+                  <span>@{t.handle}</span>
+                  <time datetime={t.createdAt}>{formatDate(t.createdAt)}</time>
+                  <span class="tweet__likes tabular">
+                    <Icon name="heart" size={16} /> {t.likes}
+                  </span>
+                  <a href={t.url} rel="noopener">
+                    Ver en X <Icon name="arrow" size={16} />
+                  </a>
+                </footer>
+              </blockquote>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .tweets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  }
+  .tweet {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.75rem;
+    background: var(--ink-1);
+    border-top: 1px solid var(--line);
+  }
+  .tweet__text {
+    white-space: pre-line;
+    font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+    font-weight: 700;
+    font-stretch: 90%;
+    line-height: 1.25;
+  }
+  .tweet__meta {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    align-items: center;
+    font-size: 1rem;
+  }
+  .tweet__likes,
+  .tweet__meta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .tweet__meta a {
+    margin-left: auto;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .tweet__meta a:hover {
+    color: var(--blue-hi);
+  }
+</style>

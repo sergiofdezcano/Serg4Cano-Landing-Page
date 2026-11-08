@@ -1,0 +1,246 @@
+---
+import Icon from './Icon.astro';
+import { profile, social } from '../lib/data.js';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const { schedule } = profile;
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__slabs" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <h1 id="hero-title" class="hero__name">Serg<span>4</span>Cano</h1>
+      <p class="hero__bio">{profile.bio}</p>
+      <p class="hero__pitch muted">{profile.pitch}</p>
+
+      <div class="strip" data-schedule={JSON.stringify(schedule)}>
+        <p class="strip__when label">
+          <span>{schedule.label}</span>
+          <span class="strip__dash" aria-hidden="true">—</span>
+          <span class="tabular">{schedule.time} {schedule.timezoneLabel}</span>
+        </p>
+        <p class="strip__count label tabular">
+          <span class="strip__state">Próximo directo</span>
+          <span class="strip__clock" data-clock>—</span>
+        </p>
+      </div>
+
+      <div class="hero__cta">
+        <a class="btn btn--fill" href={social('youtube')?.url} rel="noopener">
+          <Icon name="youtube" /> Ver en YouTube
+        </a>
+        <a class="btn" href={social('twitch')?.url} rel="noopener">
+          <Icon name="twitch" /> Directos en Twitch
+        </a>
+      </div>
+    </div>
+
+    <figure class="hero__portrait">
+      <img
+        src={`${base}img/portrait.jpg`}
+        width="800"
+        height="800"
+        alt="Retrato de Serg4Cano mirando hacia arriba sobre fondo azul"
+        fetchpriority="high"
+      />
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding-block: clamp(2.5rem, 7vw, 6rem) clamp(3.5rem, 8vw, 6.5rem);
+    background: radial-gradient(70rem 40rem at 85% 30%, rgb(0 70 160 / 0.35), transparent 70%);
+  }
+
+  /* The banners' diagonal light slabs, sweeping in once on load */
+  .hero__slabs {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .hero__slabs span {
+    position: absolute;
+    top: -20%;
+    height: 140%;
+    transform: skewX(-32deg);
+    background: linear-gradient(180deg, var(--blue), rgb(0 90 200 / 0.35));
+    animation: slab 1.1s var(--ease-out) both;
+  }
+  .hero__slabs span:nth-child(1) {
+    right: 4%;
+    width: clamp(3rem, 7vw, 6.5rem);
+    opacity: 0.9;
+  }
+  .hero__slabs span:nth-child(2) {
+    right: 16%;
+    width: clamp(1rem, 2vw, 1.75rem);
+    opacity: 0.55;
+    animation-delay: 0.08s;
+  }
+  .hero__slabs span:nth-child(3) {
+    left: -6%;
+    width: clamp(1.5rem, 3vw, 2.5rem);
+    opacity: 0.35;
+    animation-delay: 0.16s;
+  }
+  @keyframes slab {
+    from {
+      clip-path: inset(100% 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 56rem) {
+    .hero__grid {
+      grid-template-columns: 1.25fr 1fr;
+      gap: 3rem;
+    }
+  }
+
+  .hero__name {
+    font-size: clamp(3.4rem, 13.5vw, 6rem);
+    font-stretch: 115%;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    animation: rise 0.9s 0.25s var(--ease-out) both;
+  }
+  .hero__name span {
+    color: var(--blue);
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(0.25em);
+    }
+  }
+
+  .hero__bio {
+    margin-top: 1.25rem;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 700;
+    font-stretch: 85%;
+    line-height: 1.2;
+    max-width: 24ch;
+  }
+  .hero__pitch {
+    margin-top: 0.6rem;
+    max-width: 44ch;
+  }
+
+  /* Schedule strip, same as the banner: blue rules above and below */
+  .strip {
+    margin-top: 2rem;
+    padding-block: 0.85rem;
+    border-block: 2px solid var(--blue);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    align-items: baseline;
+    max-width: 36rem;
+  }
+  .strip__when {
+    font-size: clamp(1.35rem, 3.6vw, 1.75rem);
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .strip__dash {
+    color: var(--blue);
+  }
+  .strip__count {
+    font-size: 1.125rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+  }
+  .strip__clock {
+    color: var(--text);
+  }
+  .strip[data-live] .strip__state {
+    color: #fff;
+    background: var(--blue-fill);
+    padding: 0 0.4rem;
+  }
+
+  .hero__cta {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero__portrait {
+    margin: 0;
+    justify-self: center;
+    width: min(100%, 26rem);
+    position: relative;
+    animation: rise 1s 0.35s var(--ease-out) both;
+  }
+  .hero__portrait img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%);
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.7);
+  }
+  .hero__portrait::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%);
+    box-shadow: inset 0 -80px 80px -40px rgb(4 6 12 / 0.55);
+    pointer-events: none;
+  }
+  @media (max-width: 55.99rem) {
+    .hero__portrait {
+      order: -1;
+      width: min(68%, 18rem);
+    }
+  }
+</style>
+
+<script>
+  import { nextSlot, splitDuration } from '../lib/schedule.js';
+
+  const strip = document.querySelector<HTMLElement>('.strip');
+  if (strip) {
+    const schedule = JSON.parse(strip.dataset.schedule!);
+    const clock = strip.querySelector<HTMLElement>('[data-clock]')!;
+    const state = strip.querySelector<HTMLElement>('.strip__state')!;
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const tick = () => {
+      const slot = nextSlot(schedule);
+      if (slot.live) {
+        strip.dataset.live = '';
+        state.textContent = 'En horario de directo';
+        clock.textContent = '';
+        return;
+      }
+      delete strip.dataset.live;
+      state.textContent = 'Próximo directo en';
+      const { days, hours, minutes, seconds } = splitDuration(slot.secondsUntil);
+      clock.textContent = `${days ? `${days}d ` : ''}${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>

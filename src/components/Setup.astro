@@ -1,0 +1,99 @@
+---
+import Icon from './Icon.astro';
+import { setup } from '../lib/data.js';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+// Group items by category, keeping file order
+const groups = [...new Set(setup.map((i) => i.category))].map((category) => ({
+  category,
+  items: setup.filter((i) => i.category === category),
+}));
+const src = (image?: string) => (image && !/^https?:/.test(image) ? `${base}${image.replace(/^\//, '')}` : image);
+---
+
+{
+  setup.length > 0 && (
+    <section class="section" id="setup" aria-labelledby="setup-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title" id="setup-title">
+            Mi <span class="accent">setup</span>
+          </h2>
+        </div>
+        <div class="groups">
+          {groups.map((g) => (
+            <div class="group">
+              <h3 class="group__title label">{g.category}</h3>
+              <ul class="items" role="list">
+                {g.items.map((item) => {
+                  const body = (
+                    <>
+                      {item.image && <img src={src(item.image)} alt="" width="96" height="96" loading="lazy" />}
+                      <span class="item__name">{item.name}</span>
+                      {item.url && <Icon name="arrow" size={18} class="item__arrow" />}
+                    </>
+                  );
+                  return (
+                    <li class="item">
+                      {item.url ? (
+                        <a href={item.url} rel={item.affiliate ? 'sponsored noopener' : 'noopener'}>
+                          {body}
+                        </a>
+                      ) : (
+                        <div>{body}</div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .groups {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  }
+  .group__title {
+    color: var(--blue-hi);
+    font-size: 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--blue);
+  }
+  .items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .item > a,
+  .item > div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .item img {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+    background: var(--ink-2);
+  }
+  .item__name {
+    font-weight: 700;
+    flex: 1;
+  }
+  .item > a:hover .item__name {
+    color: var(--blue-hi);
+  }
+  :global(.item__arrow) {
+    color: var(--muted);
+  }
+</style>

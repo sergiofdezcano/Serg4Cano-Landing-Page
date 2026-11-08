@@ -1,0 +1,111 @@
+---
+import Icon from './Icon.astro';
+import { recommendations } from '../lib/data.js';
+
+const kindLabel = { tienda: 'Tienda', juego: 'Juego', recurso: 'Recurso' } as const;
+---
+
+{
+  recommendations.length > 0 && (
+    <section class="section" id="recomendaciones" aria-labelledby="recs-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title" id="recs-title">
+            Lo que <span class="accent">recomiendo</span>
+          </h2>
+        </div>
+        <ul class="recs" role="list">
+          {recommendations.map((r, i) => (
+            <li class:list={['rec', { 'rec--lead': i === 0 && r.kind === 'tienda' }]}>
+              <a href={r.url} rel={r.affiliate ? 'sponsored noopener' : 'noopener'}>
+                <span class="rec__kind label">{kindLabel[r.kind]}</span>
+                <span class="rec__title">{r.title}</span>
+                <span class="rec__note muted">{r.note}</span>
+                <Icon name="arrow" size={22} class="rec__arrow" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .recs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .rec a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    height: 100%;
+    padding: 1.5rem 3rem 1.6rem 1.5rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: background-color 0.25s;
+  }
+  .rec a:hover {
+    background: var(--ink-2);
+  }
+  .rec__kind {
+    color: var(--blue-hi);
+    font-size: 1rem;
+  }
+  .rec__title {
+    font-weight: 800;
+    font-stretch: 95%;
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+  .rec__note {
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  :global(.rec__arrow) {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.25rem;
+    color: var(--muted);
+    transition:
+      color 0.2s,
+      transform 0.3s var(--ease-out);
+  }
+  .rec a:hover :global(.rec__arrow) {
+    color: var(--blue-hi);
+    transform: translate(3px, -3px);
+  }
+  /* The store link leads the list: spans two columns on blue */
+  @media (min-width: 42rem) {
+    .rec--lead {
+      grid-column: span 2;
+    }
+  }
+  .rec--lead a {
+    background: var(--blue-fill);
+    justify-content: end;
+    min-height: 12rem;
+  }
+  .rec--lead a:hover {
+    background: var(--blue);
+  }
+  .rec--lead .rec__kind,
+  .rec--lead .rec__note,
+  .rec--lead :global(.rec__arrow) {
+    color: #fff;
+  }
+  .rec--lead .rec__title {
+    font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+    font-weight: 900;
+    font-stretch: 110%;
+    letter-spacing: -0.02em;
+  }
+</style>
