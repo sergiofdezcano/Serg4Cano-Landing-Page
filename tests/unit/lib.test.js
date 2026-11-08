@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextSlot, splitDuration } from '../../src/lib/schedule.js';
 import { cleanTitle, parseFeed, playlistIds } from '../../src/lib/youtube.js';
-import { syndicationToken, toTweet, tweetId } from '../../src/lib/tweets.js';
+import { latestTweets, syndicationToken, toTweet, tweetId } from '../../src/lib/tweets.js';
+import { tweets as renderedTweets } from '../../src/lib/data.js';
 
 const schedule = { days: [1, 3, 5], time: '20:00', timezone: 'Europe/Madrid', durationMinutes: 180 };
 
@@ -84,5 +85,62 @@ describe('tweets', () => {
     );
     expect(t.text).toBe('Mirad esto');
     expect(t.likes).toBe(3);
+  });
+
+  it('extracts the same id from url variants', () => {
+    const urls = [
+      'https://x.com/serg4Cano/status/123?s=20',
+      'https://x.com/serg4Cano/status/123?t=abcDEF&s=09',
+      'https://twitter.com/serg4Cano/status/123',
+      'https://x.com/serg4Cano/status/123/photo/1',
+    ];
+    expect(urls.map(tweetId)).toEqual(['123', '123', '123', '123']);
+  });
+
+  const tweet = (id, createdAt) => ({ id, url: `https://x.com/s/status/${id}`, text: id, createdAt, likes: 0, name: 'S', handle: 's' });
+
+  it('keeps the 6 most recent tweets, newest first', () => {
+    const input = [
+      tweet('1', '2026-01-05T10:00:00.000Z'),
+      tweet('2', '2026-03-01T10:00:00.000Z'),
+      tweet('3', '2025-12-31T23:00:00.000Z'),
+      tweet('4', '2026-02-10T10:00:00.000Z'),
+      tweet('5', '2026-01-20T10:00:00.000Z'),
+      tweet('6', '2025-11-01T10:00:00.000Z'),
+      tweet('7', '2026-02-28T10:00:00.000Z'),
+      tweet('8', '2026-01-01T10:00:00.000Z'),
+    ];
+    expect(latestTweets(input).map((t) => t.id)).toEqual(['2', '7', '4', '5', '1', '8']);
+  });
+
+  it('drops duplicated tweet ids', () => {
+    const input = [tweet('9', '2026-01-01T10:00:00.000Z'), tweet('9', '2026-01-01T10:00:00.000Z'), tweet('10', '2026-01-02T10:00:00.000Z')];
+    expect(latestTweets(input).map((t) => t.id)).toEqual(['10', '9']);
+  });
+
+  it('returns an empty list for no tweets', () => {
+    expect(latestTweets([])).toEqual([]);
+  });
+
+  it('data.js exposes at most 6 tweets', async () => {
+    const isNewestFirst = (list) => {
+      const times = list.map((t) => Date.parse(t.createdAt));
+      return times.every((time, i) => i === 0 || times[i - 1] >= time);
+    };
+    expect(renderedTweets.length).toBeLessThanOrEqual(6);
+    expect(isNewestFirst(renderedTweets)).toBe(true);
+
+    // Same check with a cache that holds more than 6 tweets, unordered and with a duplicate.
+    const cache = ['3', '1', '8', '5', '2', '7', '4', '6', '8'].map((id) => tweet(id, `2026-01-0${id}T10:00:00.000Z`));
+    vi.resetModules();
+    vi.doMock('../../src/data/tweet-cache.json', () => ({ default: cache }));
+    try {
+      const { tweets } = await import('../../src/lib/data.js');
+      expect(tweets.map((t) => t.id)).toEqual(['8', '7', '6', '5', '4', '3']);
+      expect(isNewestFirst(tweets)).toBe(true);
+    } finally {
+      vi.doUnmock('../../src/data/tweet-cache.json');
+      vi.resetModules();
+    }
   });
 });
