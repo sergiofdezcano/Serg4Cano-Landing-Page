@@ -8,7 +8,6 @@ const socialId = z.enum(['youtube', 'twitch', 'kick', 'tiktok', 'x', 'instagram'
 export const profileSchema = z.object({
   name: z.string().min(1),
   bio: z.string().min(1),
-  pitch: z.string().min(1),
   email: z.string().email(),
   youtubeChannelId: z.string().regex(/^UC[\w-]{22}$/),
   schedule: z.object({

@@ -15,7 +15,7 @@ import { profile, setup, deals, tweets, videos, recommendations } from '../lib/d
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const site = Astro.site ? new URL(base, Astro.site).href : base;
 const title = 'Serg4Cano · Battlefield 6, directos y vídeos';
-const description = `${profile.bio} ${profile.pitch} Directos ${profile.schedule.label} a las ${profile.schedule.time}.`;
+const description = `${profile.bio} Directos ${profile.schedule.label} a las ${profile.schedule.time}.`;
 
 // Navigation only lists sections that actually render
 const links = [

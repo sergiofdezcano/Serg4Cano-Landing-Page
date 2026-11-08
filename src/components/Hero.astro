@@ -15,7 +15,6 @@ const { schedule } = profile;
     <div class="hero__copy">
       <h1 id="hero-title" class="hero__name">Serg<span>4</span>Cano</h1>
       <p class="hero__bio">{profile.bio}</p>
-      <p class="hero__pitch muted">{profile.pitch}</p>
 
       <div class="strip" data-schedule={JSON.stringify(schedule)}>
         <p class="strip__when label">
@@ -138,10 +137,6 @@ const { schedule } = profile;
     font-stretch: 85%;
     line-height: 1.2;
     max-width: 24ch;
-  }
-  .hero__pitch {
-    margin-top: 0.6rem;
-    max-width: 44ch;
   }
 
   /* Schedule strip, same as the banner: blue rules above and below */
