@@ -11,6 +11,7 @@ low_risk_paths:
   - src/data/*.json
   - src/styles/**
   - public/img/**
+  - brain/features/**   # descripción de features; las decisiones (brain/decisions) siempre van a PR
 
 default_branch: main
 
