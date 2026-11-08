@@ -18,6 +18,7 @@ Landing de Serg4Cano, creador de contenido de Battlefield 6 en YouTube y Twitch.
 - [0003 Las secciones vacías no se muestran](decisions/0003-secciones-vacias-ocultas.md)
 - [0004 Tweets sin API de pago](decisions/0004-tweets-sin-api-de-pago.md)
 - [0005 Cada cambio se demuestra con npm run check](decisions/0005-check-obligatorio.md)
+- [0006 Los 6 tweets más recientes de una lista manual](decisions/0006-tweets-recientes-de-lista-manual.md)
 
 ## Features
 
