@@ -15,6 +15,7 @@ import {
   videosSchema,
   tweetCacheSchema,
 } from './schemas.js';
+import { latestTweets } from './tweets.js';
 
 function parse(name, schema, raw) {
   const result = schema.safeParse(raw);
@@ -31,7 +32,7 @@ export const recommendations = parse('recommendations.json', recommendationsSche
 export const deals = parse('deals.json', dealsSchema, dealsRaw);
 parse('tweets.json', tweetsSchema, tweetsRaw);
 export const videos = parse('videos.json', videosSchema, videosRaw);
-export const tweets = parse('tweet-cache.json', tweetCacheSchema, tweetCacheRaw);
+export const tweets = latestTweets(parse('tweet-cache.json', tweetCacheSchema, tweetCacheRaw));
 
 export const social = (id) => profile.socials.find((s) => s.id === id);
 

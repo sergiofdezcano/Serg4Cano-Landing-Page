@@ -9,5 +9,5 @@ Lo que un visitante puede hacer hoy, en orden de aparición:
 - **Setup**: ver el equipamiento agrupado por categoría (`setup.json`). Oculta mientras esté vacía.
 - **Recomendaciones**: ver juegos y productos recomendados con enlaces de afiliado (`recommendations.json`).
 - **Descuentos**: ver códigos de descuento y patrocinadores (`deals.json`). Oculta mientras esté vacía.
-- **Tweets**: ver tweets seleccionados (`tweets.json`). Oculta mientras esté vacía.
+- **Tweets**: ver los 6 tweets más recientes de los que Sergio ha seleccionado en `tweets.json`, del más nuevo al más antiguo. Oculta mientras esté vacía.
 - **Contacto**: escribir por email y ver redes.

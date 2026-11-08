@@ -16,7 +16,7 @@ Todo lo demás está en `src/data/` y se edita a mano:
 | `recommendations.json` | Juegos, tiendas y recursos recomendados |
 | `setup.json` | Tu equipamiento. Si está vacío, la sección no aparece |
 | `deals.json` | Descuentos y patrocinadores. Si está vacío, la sección no aparece |
-| `tweets.json` | URLs de los tweets que quieres enseñar |
+| `tweets.json` | URLs de tus tweets, en cualquier orden. Se muestran los 6 más recientes. Si está vacío, la sección no aparece |
 
 `videos.json` y `tweet-cache.json` los genera `npm run fetch`. No hace falta tocarlos.
 
@@ -31,6 +31,21 @@ Ejemplo de entrada en `deals.json`:
 ```json
 { "brand": "Marca", "discount": "10% DTO", "description": "En toda la tienda", "code": "SERG4CANO", "url": "https://...", "sponsor": true }
 ```
+
+### Añadir un tweet
+
+1. En X, abre el tweet y pulsa «Compartir → Copiar enlace».
+2. Abre `src/data/tweets.json`. Desde el móvil o el navegador puedes hacerlo en github.com: entra en el archivo, pulsa el lápiz («Edit this file») y luego «Commit changes».
+3. Pega el enlace como una entrada más de la lista, entre comillas y separado por comas:
+
+```json
+[
+  "https://x.com/serg4Cano/status/1234567890123456789",
+  "https://x.com/serg4Cano/status/1234567890123456790?s=20"
+]
+```
+
+Da igual el orden, que sea de x.com o twitter.com, que lleve `?s=20` al final o que esté repetido. La web muestra los 6 más recientes, del más nuevo al más antiguo, así que no hace falta borrar los antiguos: dejan de verse solos. El tweet aparece en la siguiente build, que se lanza con cada push a `main` y, como mucho, a las 3 horas.
 
 Cada archivo tiene un esquema en `src/lib/schemas.js`. Si falta un campo o un enlace está mal escrito, la build falla y la web publicada no cambia.
 

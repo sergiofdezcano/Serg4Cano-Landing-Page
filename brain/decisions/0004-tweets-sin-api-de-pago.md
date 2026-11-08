@@ -5,3 +5,5 @@
 **Decisión.** `src/data/tweets.json` es una lista manual de URLs de tweets; en build se obtienen sus datos y se guardan en `tweet-cache.json`. Hoy la lista está vacía, así que la sección está oculta (ver 0003).
 
 **Consecuencias.** No se añade ninguna dependencia ni clave de la API de X. Automatizar "los últimos tweets" requiere otra fuente y una decisión nueva.
+
+Ver también [0006 Los 6 tweets más recientes de una lista manual](0006-tweets-recientes-de-lista-manual.md).

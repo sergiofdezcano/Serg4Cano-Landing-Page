@@ -46,9 +46,11 @@ async function refreshTweets() {
   const cache = await readJson('tweet-cache.json', []);
   const byId = new Map(cache.map((t) => [t.id, t]));
   const result = [];
+  const seen = new Set();
   for (const url of urls) {
     const id = tweetId(url);
-    if (!id) continue;
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
     try {
       const raw = JSON.parse(await fetchText(syndicationUrl(id)));
       if (!raw.text) throw new Error('no text (deleted or private?)');
