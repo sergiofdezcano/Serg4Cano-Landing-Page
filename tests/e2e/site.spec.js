@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync } from 'node:fs';
 
-const sections = ['#top', '#videos', '#shorts', '#directos', '#recomendaciones', '#contacto'];
+const sections = ['#top', '#videos', '#shorts', '#directos', '#recomendaciones', '#descuentos', '#contacto'];
 
 test('renders every main section', async ({ page }) => {
   await page.goto('./');
@@ -17,6 +17,27 @@ test('nav only links to sections that exist', async ({ page }) => {
   for (const href of await page.locator('.nav__links a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))) {
     await expect(page.locator(href)).toHaveCount(1);
   }
+});
+
+test('descuentos muestra ofertas de Steam', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.locator('.nav__links a[href="#descuentos"]')).toHaveText('Descuentos');
+  const section = page.locator('#descuentos');
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText(/Descuentos y ofertas/);
+  await expect(section.getByRole('heading', { level: 3, name: 'Ofertas en Steam' })).toBeVisible();
+  const cards = section.locator('.offer');
+  const count = await cards.count();
+  expect(count).toBeGreaterThanOrEqual(1);
+  expect(count).toBeLessThanOrEqual(6);
+  for (const card of await cards.all()) {
+    const link = card.locator('a');
+    await expect(link).toHaveAttribute('href', /^https:\/\/store\.steampowered\.com\/app\/\d+\/$/);
+    await expect(link).toHaveAttribute('rel', 'noopener');
+    await expect(card).toContainText(/-\d+%/);
+    await expect(card.locator('img')).toHaveAttribute('alt', /\S/);
+    await expect(card.locator('s')).toContainText('€');
+  }
+  await expect(section).toContainText(/Actualizado el .+\. Precios de Steam España; pueden cambiar\./);
 });
 
 test('hero links to the six social profiles', async ({ page }) => {
