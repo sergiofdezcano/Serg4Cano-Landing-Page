@@ -3,6 +3,7 @@ import { nextSlot, splitDuration } from '../../src/lib/schedule.js';
 import { cleanTitle, parseFeed, playlistIds } from '../../src/lib/youtube.js';
 import { latestTweets, syndicationToken, toTweet, tweetId } from '../../src/lib/tweets.js';
 import { tweets as renderedTweets } from '../../src/lib/data.js';
+import { activeOffers, formatEuros, toSteamOffers } from '../../src/lib/steam.js';
 
 const schedule = { days: [1, 3, 5], time: '20:00', timezone: 'Europe/Madrid', durationMinutes: 180 };
 
@@ -142,5 +143,107 @@ describe('tweets', () => {
       vi.doUnmock('../../src/data/tweet-cache.json');
       vi.resetModules();
     }
+  });
+});
+
+describe('steam offers', () => {
+  const item = (id, discount_percent = 50, extra = {}) => ({
+    id,
+    name: `Juego ${id}`,
+    discounted: discount_percent > 0,
+    discount_percent,
+    original_price: 1999,
+    final_price: 999,
+    currency: 'EUR',
+    header_image: `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`,
+    discount_expiration: 1794243600,
+    ...extra,
+  });
+  // Minimal featuredcategories response: one item without discount, a duplicated id and more than 6 valid items.
+  const fixture = {
+    specials: {
+      items: [item(1, 0), item(2), item(3), item(2, 75), item(4), item(5), item(6), item(7), item(8), item(9)],
+    },
+  };
+
+  it('keeps discounted items, unique by id, in Steam order, at most 6', () => {
+    expect(toSteamOffers(fixture).map((o) => o.id)).toEqual([2, 3, 4, 5, 6, 7]);
+  });
+
+  it('converts cents to euros and builds the store url', () => {
+    expect(toSteamOffers(fixture)[0]).toEqual({
+      id: 2,
+      name: 'Juego 2',
+      discountPercent: 50,
+      originalPrice: 19.99,
+      finalPrice: 9.99,
+      image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2/header.jpg',
+      url: 'https://store.steampowered.com/app/2/',
+      endsAt: new Date(1794243600 * 1000).toISOString(),
+    });
+  });
+
+  it('keeps offers without an end date as null', () => {
+    const offers = toSteamOffers({ specials: { items: [item(9, 10, { discount_expiration: undefined })] } });
+    expect(offers[0].endsAt).toBeNull();
+  });
+
+  it('leaves out items that would not pass the schema instead of failing the batch', () => {
+    const raw = {
+      specials: {
+        items: [
+          item(1, 50, { header_image: undefined }),
+          item(2, '50'),
+          item(3, 50, { name: undefined }),
+          item(4, 50, { final_price: 'gratis' }),
+          item(undefined),
+          item(5),
+        ],
+      },
+    };
+    expect(toSteamOffers(raw).map((o) => o.id)).toEqual([5]);
+  });
+
+  it('returns no offers for an empty or malformed response', () => {
+    expect(toSteamOffers({})).toEqual([]);
+    expect(toSteamOffers(null)).toEqual([]);
+  });
+
+  it('drops expired offers and keeps the ones without an end date', () => {
+    const now = new Date('2026-11-08T12:00:00Z');
+    const offers = [
+      { id: 1, endsAt: '2026-11-08T11:59:59.000Z' },
+      { id: 2, endsAt: null },
+      { id: 3, endsAt: '2026-11-09T00:00:00.000Z' },
+    ];
+    expect(activeOffers(offers, now).map((o) => o.id)).toEqual([2, 3]);
+  });
+
+  it('data.js drops expired offers from the cached copy', async () => {
+    const offer = (id, endsAt) => ({
+      id,
+      name: `Juego ${id}`,
+      discountPercent: 50,
+      originalPrice: 19.99,
+      finalPrice: 9.99,
+      image: 'https://shared.akamai.steamstatic.com/x.jpg',
+      url: `https://store.steampowered.com/app/${id}/`,
+      endsAt,
+    });
+    const cache = { updatedAt: '2020-01-01T00:00:00.000Z', offers: [offer(1, '2020-01-02T00:00:00.000Z'), offer(2, null)] };
+    vi.resetModules();
+    vi.doMock('../../src/data/steam-offers.json', () => ({ default: cache }));
+    try {
+      const { steamOffers } = await import('../../src/lib/data.js');
+      expect(steamOffers.offers.map((o) => o.id)).toEqual([2]);
+      expect(steamOffers.updatedAt).toBe('2020-01-01T00:00:00.000Z');
+    } finally {
+      vi.doUnmock('../../src/data/steam-offers.json');
+      vi.resetModules();
+    }
+  });
+
+  it('formats euros the Spanish way', () => {
+    expect(formatEuros(14.99).replace(/\s/g, ' ')).toBe('14,99 €');
   });
 });

@@ -10,7 +10,7 @@ import Recommendations from '../components/Recommendations.astro';
 import Deals from '../components/Deals.astro';
 import Tweets from '../components/Tweets.astro';
 import Contact from '../components/Contact.astro';
-import { profile, setup, deals, tweets, videos, recommendations } from '../lib/data.js';
+import { profile, setup, deals, steamOffers, tweets, videos, recommendations } from '../lib/data.js';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const site = Astro.site ? new URL(base, Astro.site).href : base;
@@ -24,7 +24,7 @@ const links = [
   { href: '#directos', label: 'Directos' },
   setup.length && { href: '#setup', label: 'Setup' },
   recommendations.length && { href: '#recomendaciones', label: 'Recomendaciones' },
-  deals.length && { href: '#descuentos', label: 'Descuentos' },
+  (deals.length || steamOffers.offers.length) && { href: '#descuentos', label: 'Descuentos' },
   tweets.length && { href: '#tweets', label: 'Tweets' },
   { href: '#contacto', label: 'Contacto' },
 ].filter(Boolean) as { href: string; label: string }[];

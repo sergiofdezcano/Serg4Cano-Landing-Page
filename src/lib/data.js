@@ -6,6 +6,7 @@ import dealsRaw from '../data/deals.json';
 import tweetsRaw from '../data/tweets.json';
 import videosRaw from '../data/videos.json';
 import tweetCacheRaw from '../data/tweet-cache.json';
+import steamOffersRaw from '../data/steam-offers.json';
 import {
   profileSchema,
   setupSchema,
@@ -14,8 +15,10 @@ import {
   tweetsSchema,
   videosSchema,
   tweetCacheSchema,
+  steamOffersSchema,
 } from './schemas.js';
 import { latestTweets } from './tweets.js';
+import { activeOffers } from './steam.js';
 
 function parse(name, schema, raw) {
   const result = schema.safeParse(raw);
@@ -33,6 +36,10 @@ export const deals = parse('deals.json', dealsSchema, dealsRaw);
 parse('tweets.json', tweetsSchema, tweetsRaw);
 export const videos = parse('videos.json', videosSchema, videosRaw);
 export const tweets = latestTweets(parse('tweet-cache.json', tweetCacheSchema, tweetCacheRaw));
+
+// Expired deals are dropped at build time, so a stale cached copy never shows them.
+const steamRaw = parse('steam-offers.json', steamOffersSchema, steamOffersRaw);
+export const steamOffers = { updatedAt: steamRaw.updatedAt, offers: activeOffers(steamRaw.offers) };
 
 export const social = (id) => profile.socials.find((s) => s.id === id);
 

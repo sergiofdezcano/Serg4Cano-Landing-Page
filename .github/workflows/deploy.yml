@@ -27,7 +27,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm install --no-audit --no-fund # lockfile comes from Windows; npm ci trips on Linux-only optional deps
-      - name: Refresh videos and tweets
+      - name: Refresh videos, tweets and Steam offers
         run: npm run fetch
       - run: npm run build
       - name: Unit tests and data checks

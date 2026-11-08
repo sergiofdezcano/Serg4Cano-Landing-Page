@@ -1,0 +1,65 @@
+{
+  "updatedAt": "2026-11-08T21:30:18.386Z",
+  "offers": [
+    {
+      "id": 3241660,
+      "name": "R.E.P.O.",
+      "discountPercent": 35,
+      "originalPrice": 9.49,
+      "finalPrice": 6.16,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3241660/62177765c05399116f0453fe1177b00ceed698c4/header_alt_assets_3.jpg?t=1793278962",
+      "url": "https://store.steampowered.com/app/3241660/",
+      "endsAt": "2026-11-09T17:00:00.000Z"
+    },
+    {
+      "id": 5266240,
+      "name": "Potato Please",
+      "discountPercent": 10,
+      "originalPrice": 9.69,
+      "finalPrice": 8.72,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5266240/e289442aa6b3756109bc65b427556ea538efb849/header.jpg?t=1794167289",
+      "url": "https://store.steampowered.com/app/5266240/",
+      "endsAt": "2026-11-15T18:00:36.000Z"
+    },
+    {
+      "id": 3768760,
+      "name": "007 First Light",
+      "discountPercent": 40,
+      "originalPrice": 79.99,
+      "finalPrice": 47.99,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3768760/be65391533f072e79699be70ef2d47b7b2ac57ee/header_alt_assets_5.jpg?t=1793979129",
+      "url": "https://store.steampowered.com/app/3768760/",
+      "endsAt": "2026-11-09T18:00:00.000Z"
+    },
+    {
+      "id": 4348910,
+      "name": "Probably Stolen - Cyberpunk Shopkeeper Sim",
+      "discountPercent": 10,
+      "originalPrice": 19.99,
+      "finalPrice": 17.99,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4348910/66ad13c91ba06d7f0aa11b9fe0e53c3fe15bb9c3/header_alt_assets_3_spanish.jpg?t=1794162078",
+      "url": "https://store.steampowered.com/app/4348910/",
+      "endsAt": "2026-11-11T17:00:39.000Z"
+    },
+    {
+      "id": 252490,
+      "name": "Rust",
+      "discountPercent": 50,
+      "originalPrice": 39.99,
+      "finalPrice": 19.99,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252490/header.jpg?t=1781536981",
+      "url": "https://store.steampowered.com/app/252490/",
+      "endsAt": "2026-11-09T17:00:00.000Z"
+    },
+    {
+      "id": 275850,
+      "name": "No Man's Sky",
+      "discountPercent": 60,
+      "originalPrice": 58.99,
+      "finalPrice": 23.59,
+      "image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/275850/9f1ca9e3b7d1dccb7b5af404a6739ddc1118ef32/header_alt_assets_26.jpg?t=1793196605",
+      "url": "https://store.steampowered.com/app/275850/",
+      "endsAt": "2026-11-09T18:00:00.000Z"
+    }
+  ]
+}

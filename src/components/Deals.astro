@@ -1,21 +1,24 @@
 ---
 import Icon from './Icon.astro';
-import { deals } from '../lib/data.js';
+import { deals, steamOffers, formatDate } from '../lib/data.js';
+import { formatEuros } from '../lib/steam.js';
 
 const sponsors = deals.filter((d) => d.sponsor);
 const codes = deals.filter((d) => !d.sponsor);
 const ordered = [...sponsors, ...codes];
+const offers = steamOffers.offers;
 ---
 
 {
-  ordered.length > 0 && (
+  (ordered.length > 0 || offers.length > 0) && (
     <section class="section" id="descuentos" aria-labelledby="deals-title">
       <div class="wrap">
         <div class="section-head">
           <h2 class="section-title" id="deals-title">
-            Descuentos <span class="accent">y patrocinadores</span>
+            Descuentos <span class="accent">y ofertas</span>
           </h2>
         </div>
+        {ordered.length > 0 && (
         <ul class="deals" role="list">
           {ordered.map((d) => (
             <li class="deal">
@@ -41,9 +44,47 @@ const ordered = [...sponsors, ...codes];
             </li>
           ))}
         </ul>
-        <p class="muted disclosure">
-          Algunos enlaces son de afiliado: si compras desde ellos me llevo una pequeña comisión y a ti no te cuesta más.
-        </p>
+        )}
+        {offers.length > 0 && (
+          <div class="steam">
+            <h3 class="steam__title">Ofertas en Steam</h3>
+            <ul class="offers" role="list">
+              {offers.map((o) => (
+                <li class="offer">
+                  <a class="offer__link" href={o.url} rel="noopener">
+                    <img class="offer__img" src={o.image} alt={o.name} width="460" height="215" loading="lazy" decoding="async" />
+                    <span class="offer__body">
+                      <span class="offer__name">{o.name}</span>
+                      <span class="offer__prices">
+                        <span class="offer__discount tabular">-{o.discountPercent}%</span>
+                        <span class="offer__final tabular">{formatEuros(o.finalPrice)}</span>
+                        <s class="offer__original muted tabular">{formatEuros(o.originalPrice)}</s>
+                      </span>
+                      {o.endsAt && (
+                        <span class="offer__ends muted">
+                          Hasta el <time datetime={o.endsAt}>{formatDate(o.endsAt)}</time>
+                        </span>
+                      )}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p class="muted steam__note">
+              {steamOffers.updatedAt && (
+                <>
+                  Actualizado el <time datetime={steamOffers.updatedAt}>{formatDate(steamOffers.updatedAt)}</time>.{' '}
+                </>
+              )}
+              Precios de Steam España; pueden cambiar.
+            </p>
+          </div>
+        )}
+        {ordered.length > 0 && (
+          <p class="muted disclosure">
+            Algunos enlaces son de afiliado: si compras desde ellos me llevo una pequeña comisión y a ti no te cuesta más.
+          </p>
+        )}
       </div>
     </section>
   )
@@ -112,6 +153,80 @@ const ordered = [...sponsors, ...codes];
   .code[data-copied] {
     border-style: solid;
     background: var(--blue-fill);
+  }
+  .deals + .steam {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .steam__title {
+    margin: 0 0 1.25rem;
+    font-weight: 800;
+    font-stretch: 90%;
+    font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  }
+  .offers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  }
+  .offer__link {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--ink-1);
+    border-top: 3px solid var(--blue);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .offer__link:hover .offer__name {
+    color: var(--blue-hi);
+  }
+  .offer__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 460 / 215;
+    object-fit: cover;
+    background: var(--ink-2);
+  }
+  .offer__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+  .offer__name {
+    font-weight: 800;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .offer__prices {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.8rem;
+  }
+  .offer__discount {
+    padding: 0.15rem 0.5rem;
+    background: var(--blue-fill);
+    color: #fff;
+    font-weight: 900;
+  }
+  .offer__final {
+    font-weight: 900;
+    font-size: 1.5rem;
+  }
+  .offer__ends,
+  .steam__note {
+    font-size: 0.95rem;
+  }
+  .steam__note {
+    margin-top: 1.25rem;
   }
   .disclosure {
     margin-top: 1.5rem;

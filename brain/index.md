@@ -19,6 +19,7 @@ Landing de Serg4Cano, creador de contenido de Battlefield 6 en YouTube y Twitch.
 - [0004 Tweets sin API de pago](decisions/0004-tweets-sin-api-de-pago.md)
 - [0005 Cada cambio se demuestra con npm run check](decisions/0005-check-obligatorio.md)
 - [0006 Los 6 tweets más recientes de una lista manual](decisions/0006-tweets-recientes-de-lista-manual.md)
+- [0007 Ofertas de juegos automáticas desde Steam](decisions/0007-ofertas-de-steam-automaticas.md)
 
 ## Features
 

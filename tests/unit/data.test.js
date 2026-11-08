@@ -14,6 +14,7 @@ const files = {
   'tweets.json': s.tweetsSchema,
   'videos.json': s.videosSchema,
   'tweet-cache.json': s.tweetCacheSchema,
+  'steam-offers.json': s.steamOffersSchema,
 };
 
 describe('data files', () => {
@@ -37,5 +38,30 @@ describe('data files', () => {
 
   it('rejects a deal without a URL', () => {
     expect(s.dealsSchema.safeParse([{ brand: 'X', discount: '10%', description: 'd' }]).success).toBe(false);
+  });
+
+  const offer = {
+    id: 1,
+    name: 'Juego',
+    discountPercent: 50,
+    originalPrice: 19.99,
+    finalPrice: 9.99,
+    image: 'https://shared.akamai.steamstatic.com/x.jpg',
+    url: 'https://store.steampowered.com/app/1/',
+    endsAt: null,
+  };
+  const offersFile = (o) => ({ updatedAt: '2026-11-08T12:00:00.000Z', offers: [o] });
+
+  it('accepts a valid steam offer', () => {
+    expect(s.steamOffersSchema.safeParse(offersFile(offer)).success).toBe(true);
+  });
+
+  it('rejects a steam offer without url', () => {
+    const { url, ...noUrl } = offer;
+    expect(s.steamOffersSchema.safeParse(offersFile(noUrl)).success).toBe(false);
+  });
+
+  it('rejects a steam offer with a non-numeric discount', () => {
+    expect(s.steamOffersSchema.safeParse(offersFile({ ...offer, discountPercent: '50%' })).success).toBe(false);
   });
 });

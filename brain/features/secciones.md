@@ -8,6 +8,6 @@ Lo que un visitante puede hacer hoy, en orden de aparición:
 - **Directos**: ver el horario de directos (lun, mié y vie a las 20:00, hora de Madrid) y si ahora toca directo según ese horario (se calcula con el horario, no consultando Twitch ni YouTube).
 - **Setup**: ver el equipamiento agrupado por categoría (`setup.json`). Oculta mientras esté vacía.
 - **Recomendaciones**: ver juegos y productos recomendados con enlaces de afiliado (`recommendations.json`).
-- **Descuentos**: ver códigos de descuento y patrocinadores (`deals.json`). Oculta mientras esté vacía.
+- **Descuentos**: ver códigos de descuento y patrocinadores (`deals.json`) y hasta 6 ofertas actuales de Steam que se actualizan solas cada 3 horas, con enlace a la tienda (`steam-offers.json`, generado en build). Oculta si no hay ninguna de las dos cosas.
 - **Tweets**: ver los 6 tweets más recientes de los que Sergio ha seleccionado en `tweets.json`, del más nuevo al más antiguo. Oculta mientras esté vacía.
 - **Contacto**: escribir por email y ver redes.
