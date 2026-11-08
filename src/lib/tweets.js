@@ -11,6 +11,15 @@ export function syndicationUrl(id) {
   return `https://cdn.syndication.twimg.com/tweet-result?id=${id}&lang=es&token=${syndicationToken(id)}`;
 }
 
+// The section shows at most 6 tweets: two full rows of the 3-column desktop grid.
+const MAX_TWEETS = 6;
+
+// Unique by id, newest first by publication date, at most MAX_TWEETS.
+export function latestTweets(tweets) {
+  const unique = [...new Map(tweets.map((t) => [t.id, t])).values()];
+  return unique.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, MAX_TWEETS);
+}
+
 export function toTweet(raw, url) {
   const [start, end] = raw.display_text_range ?? [0, raw.text.length];
   const text = [...raw.text].slice(start, end).join('').replace(/\s*https:\/\/t\.co\/\w+$/, '');
