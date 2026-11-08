@@ -1,0 +1,115 @@
+---
+import Icon from './Icon.astro';
+import { profile, videos } from '../lib/data.js';
+
+const year = new Date().getFullYear();
+---
+
+<section class="contact" id="contacto" aria-labelledby="contact-title">
+  <div class="stripes" aria-hidden="true"></div>
+  <div class="wrap contact__inner">
+    <h2 class="contact__title" id="contact-title">¿Hacemos algo <span>juntos</span>?</h2>
+    <p class="contact__lead muted">Colaboraciones, patrocinios o propuestas para el canal: escríbeme.</p>
+    <a class="contact__mail" href={`mailto:${profile.email}`}>
+      <Icon name="mail" size={30} />
+      <span>{profile.email}</span>
+    </a>
+
+    <ul class="socials" role="list">
+      {
+        profile.socials.map((s) => (
+          <li>
+            <a href={s.url} rel="noopener" aria-label={`${s.label}: ${s.handle}`}>
+              <Icon name={s.id} size={24} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <footer class="wrap footer muted">
+    <p>
+      Algunos enlaces son de afiliado: si compras desde ellos me llevo una pequeña comisión y a ti no te cuesta más.
+    </p>
+    <p class="label">© {year} Serg4Cano · Vídeos actualizados el <time datetime={videos.updatedAt}>{
+      new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' }).format(new Date(videos.updatedAt || Date.now()))
+    }</time></p>
+  </footer>
+</section>
+
+<style>
+  .contact {
+    padding-top: 1px;
+    background: linear-gradient(180deg, var(--ink-0), #031026);
+  }
+  .contact__inner {
+    padding-block: clamp(4rem, 10vw, 8rem) clamp(3rem, 6vw, 5rem);
+  }
+  .contact__title {
+    font-size: clamp(2.75rem, 9vw, 6rem);
+    font-stretch: 115%;
+    letter-spacing: -0.04em;
+    max-width: 12ch;
+  }
+  .contact__title span {
+    color: var(--blue);
+  }
+  .contact__lead {
+    margin-top: 1.25rem;
+    max-width: 46ch;
+    font-size: 1.15rem;
+  }
+  .contact__mail {
+    margin-top: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-weight: 800;
+    font-stretch: 90%;
+    font-size: clamp(1.25rem, 4.6vw, 2.25rem);
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.25em;
+    overflow-wrap: anywhere;
+  }
+  .contact__mail:hover {
+    color: var(--blue-hi);
+  }
+  .socials {
+    list-style: none;
+    margin: 3rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .socials a {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 2px solid var(--line);
+    transition:
+      border-color 0.2s,
+      background-color 0.2s,
+      transform 0.25s var(--ease-out);
+  }
+  .socials a:hover {
+    border-color: var(--blue);
+    background: var(--blue-fill);
+    transform: translateY(-2px);
+  }
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    padding-block: 1.75rem 2.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+  .footer p:first-child {
+    max-width: 60ch;
+  }
+</style>

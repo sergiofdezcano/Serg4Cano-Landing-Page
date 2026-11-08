@@ -1,0 +1,28 @@
+{
+  "name": "serg4cano-landing-page",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "fetch": "node scripts/fetch-content.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run build && npm test && npm run test:e2e",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "astro": "^7.4.7",
+    "simple-icons": "^16.37.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "vitest": "^5.1.0"
+  }
+}

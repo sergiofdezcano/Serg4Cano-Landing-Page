@@ -1,0 +1,142 @@
+---
+import Icon from './Icon.astro';
+import { deals } from '../lib/data.js';
+
+const sponsors = deals.filter((d) => d.sponsor);
+const codes = deals.filter((d) => !d.sponsor);
+const ordered = [...sponsors, ...codes];
+---
+
+{
+  ordered.length > 0 && (
+    <section class="section" id="descuentos" aria-labelledby="deals-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title" id="deals-title">
+            Descuentos <span class="accent">y patrocinadores</span>
+          </h2>
+        </div>
+        <ul class="deals" role="list">
+          {ordered.map((d) => (
+            <li class="deal">
+              <div class="deal__top">
+                <span class="deal__brand">{d.brand}</span>
+                {d.sponsor && <span class="label deal__tag">Patrocinador</span>}
+              </div>
+              <p class="deal__discount">{d.discount}</p>
+              <p class="muted">{d.description}</p>
+              <div class="deal__actions">
+                {d.code && (
+                  <button class="code" type="button" data-code={d.code} aria-label={`Copiar código ${d.code}`}>
+                    <span class="code__value tabular">{d.code}</span>
+                    <span class="code__icon">
+                      <Icon name="copy" size={18} />
+                    </span>
+                  </button>
+                )}
+                <a class="btn" href={d.url} rel="sponsored noopener">
+                  Ir a la tienda <Icon name="arrow" />
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p class="muted disclosure">
+          Algunos enlaces son de afiliado: si compras desde ellos me llevo una pequeña comisión y a ti no te cuesta más.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .deals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  }
+  .deal {
+    padding: 1.5rem;
+    background: var(--ink-1);
+    border-top: 3px solid var(--blue);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .deal__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .deal__brand {
+    font-weight: 800;
+    font-size: 1.25rem;
+  }
+  .deal__tag {
+    color: var(--blue-hi);
+  }
+  .deal__discount {
+    font-weight: 900;
+    font-stretch: 110%;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--blue-hi);
+  }
+  .deal__actions {
+    margin-top: auto;
+    padding-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .code {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0 1rem;
+    border: 2px dashed var(--blue);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .code:hover {
+    background: rgb(0 131 255 / 0.12);
+  }
+  .code[data-copied] {
+    border-style: solid;
+    background: var(--blue-fill);
+  }
+  .disclosure {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    max-width: 70ch;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.code').forEach((btn) => {
+    const value = btn.querySelector('.code__value')!;
+    btn.addEventListener('click', async () => {
+      const code = btn.dataset.code!;
+      try {
+        await navigator.clipboard.writeText(code);
+        value.textContent = '¡Copiado!';
+      } catch {
+        value.textContent = code; // Clipboard blocked: leave the code visible to copy by hand
+        return;
+      }
+      btn.dataset.copied = '';
+      setTimeout(() => {
+        value.textContent = code;
+        delete btn.dataset.copied;
+      }, 1800);
+    });
+  });
+</script>

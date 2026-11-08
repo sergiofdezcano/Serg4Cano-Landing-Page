@@ -1,0 +1,129 @@
+---
+import Icon from './Icon.astro';
+import { profile, social } from '../lib/data.js';
+
+const platforms = profile.streamPlatforms.map(social).filter(Boolean);
+---
+
+<section class="section" id="directos" aria-labelledby="live-title">
+  <div class="wrap live">
+    <div class="live__intro">
+      <h2 class="section-title" id="live-title">En <span class="accent">directo</span></h2>
+      <p class="live__when label">
+        {profile.schedule.label}
+        <span class="accent">&nbsp;—&nbsp;</span>
+        {`${profile.schedule.time} ${profile.schedule.timezoneLabel}`}
+      </p>
+      <p class="muted">Emito a la vez en todas estas plataformas. Elige la que más uses.</p>
+    </div>
+
+    <ul class="platforms" role="list">
+      {
+        platforms.map((p) => (
+          <li>
+            <a class="platform" href={p!.url} rel="noopener">
+              <Icon name={p!.id} size={28} class="platform__icon" />
+              <span class="platform__name">{p!.label}</span>
+              <span class="platform__handle label muted">{p!.handle}</span>
+              <Icon name="arrow" size={26} class="platform__arrow" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .live {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 60rem) {
+    .live {
+      grid-template-columns: 1fr 1.4fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .live__intro {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+  .live__when {
+    margin: 1.25rem 0 0.75rem;
+    font-size: 1.6rem;
+  }
+  .live__when .accent {
+    color: var(--blue);
+  }
+  .live__intro .muted {
+    max-width: 34ch;
+  }
+
+  .platforms {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .platform {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'icon name arrow' 'icon handle arrow';
+    align-items: center;
+    column-gap: 1.25rem;
+    padding: 1.4rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    isolation: isolate;
+  }
+  @media (min-width: 40rem) {
+    .platform {
+      grid-template-columns: auto 1fr auto auto;
+      grid-template-areas: 'icon name handle arrow';
+    }
+  }
+  /* Blue slab sweeps across the row on hover */
+  .platform::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--blue-fill);
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    transition: clip-path 0.45s var(--ease-out);
+  }
+  .platform:hover::before,
+  .platform:focus-visible::before {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .platform:hover .platform__handle,
+  .platform:focus-visible .platform__handle {
+    color: #fff;
+  }
+  :global(.platform__icon) {
+    grid-area: icon;
+  }
+  .platform__name {
+    grid-area: name;
+    font-weight: 900;
+    font-stretch: 112%;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .platform__handle {
+    grid-area: handle;
+    font-size: 1.125rem;
+    transition: color 0.2s;
+  }
+  :global(.platform__arrow) {
+    grid-area: arrow;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .platform:hover :global(.platform__arrow) {
+    transform: translate(3px, -3px);
+  }
+</style>
