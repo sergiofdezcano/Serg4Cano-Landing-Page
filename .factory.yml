@@ -1,0 +1,19 @@
+# Configuración para la AI Software Factory (sergiofdezcano/AI-Software-Factory).
+# La fábrica ejecuta estos comandos por su cuenta para comprobar cada cambio.
+
+setup: npm install --no-audit --no-fund
+check: npm run check
+screenshots: node scripts/factory-screenshots.mjs
+
+# Si un cambio solo toca estas rutas, puede mergearse solo
+# (con controles en verde, revisores a favor y el clasificador de acuerdo).
+low_risk_paths:
+  - src/data/*.json
+  - src/styles/**
+  - public/img/**
+
+default_branch: main
+
+timeouts:
+  builder_minutes: 60
+  check_minutes: 20
