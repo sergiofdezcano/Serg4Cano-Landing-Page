@@ -1,9 +1,10 @@
-// Refreshes src/data/videos.json and src/data/tweet-cache.json.
+// Refreshes src/data/videos.json, src/data/tweet-cache.json and src/data/steam-offers.json.
 // Runs before every build. If a source fails, the last good data stays,
 // so the site never ships empty.
 import { readFile, writeFile } from 'node:fs/promises';
 import { feedUrl, parseFeed, playlistIds } from '../src/lib/youtube.js';
 import { syndicationUrl, toTweet, tweetId } from '../src/lib/tweets.js';
+import { STEAM_SPECIALS_URL, toSteamOffers } from '../src/lib/steam.js';
 
 const root = new URL('../src/data/', import.meta.url);
 const readJson = async (name, fallback) => {
@@ -64,5 +65,17 @@ async function refreshTweets() {
   console.log(`tweets: ${result.length}/${urls.length}`);
 }
 
+// STEAM_SPECIALS_URL can be overridden to check the fallback without touching the network.
+async function refreshSteamOffers() {
+  try {
+    const offers = toSteamOffers(JSON.parse(await fetchText(process.env.STEAM_SPECIALS_URL ?? STEAM_SPECIALS_URL)));
+    if (!offers.length) throw new Error('no discounted items');
+    await writeJson('steam-offers.json', { updatedAt: new Date().toISOString(), offers });
+    console.log(`steam: ${offers.length} offers`);
+  } catch (err) {
+    console.warn(`steam: keeping previous data (${err.message})`);
+  }
+}
+
 const profile = await readJson('profile.json', null);
-await Promise.all([refreshVideos(profile), refreshTweets()]);
+await Promise.all([refreshVideos(profile), refreshTweets(), refreshSteamOffers()]);
