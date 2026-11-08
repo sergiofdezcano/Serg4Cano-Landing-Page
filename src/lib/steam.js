@@ -5,13 +5,30 @@ export const STEAM_SPECIALS_URL = 'https://store.steampowered.com/api/featuredca
 // Two full rows of the 3-column desktop grid.
 const MAX_OFFERS = 6;
 
-// Discounted items only, unique by id, in Steam's order, at most MAX_OFFERS.
+const isPrice = (v) => Number.isFinite(v) && v >= 0;
+
+// Items that would not pass steamOffersSchema are left out one by one,
+// so a single bad item does not throw away the whole batch.
+const isValidItem = (item) =>
+  Number.isInteger(item?.id) &&
+  item.id > 0 &&
+  typeof item.name === 'string' &&
+  item.name.length > 0 &&
+  typeof item.header_image === 'string' &&
+  item.header_image.length > 0 &&
+  Number.isInteger(item.discount_percent) &&
+  item.discount_percent > 0 &&
+  item.discount_percent <= 100 &&
+  isPrice(item.original_price) &&
+  isPrice(item.final_price);
+
+// Valid discounted items only, unique by id, in Steam's order, at most MAX_OFFERS.
 export function toSteamOffers(raw) {
   const items = raw?.specials?.items ?? [];
   const seen = new Set();
   const offers = [];
   for (const item of items) {
-    if (!(item?.discount_percent > 0) || seen.has(item.id)) continue;
+    if (!isValidItem(item) || seen.has(item.id)) continue;
     seen.add(item.id);
     offers.push({
       id: item.id,

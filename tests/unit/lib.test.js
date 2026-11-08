@@ -188,6 +188,22 @@ describe('steam offers', () => {
     expect(offers[0].endsAt).toBeNull();
   });
 
+  it('leaves out items that would not pass the schema instead of failing the batch', () => {
+    const raw = {
+      specials: {
+        items: [
+          item(1, 50, { header_image: undefined }),
+          item(2, '50'),
+          item(3, 50, { name: undefined }),
+          item(4, 50, { final_price: 'gratis' }),
+          item(undefined),
+          item(5),
+        ],
+      },
+    };
+    expect(toSteamOffers(raw).map((o) => o.id)).toEqual([5]);
+  });
+
   it('returns no offers for an empty or malformed response', () => {
     expect(toSteamOffers({})).toEqual([]);
     expect(toSteamOffers(null)).toEqual([]);

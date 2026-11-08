@@ -5,6 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { feedUrl, parseFeed, playlistIds } from '../src/lib/youtube.js';
 import { syndicationUrl, toTweet, tweetId } from '../src/lib/tweets.js';
 import { STEAM_SPECIALS_URL, toSteamOffers } from '../src/lib/steam.js';
+import { steamOffersSchema } from '../src/lib/schemas.js';
 
 const root = new URL('../src/data/', import.meta.url);
 const readJson = async (name, fallback) => {
@@ -70,7 +71,10 @@ async function refreshSteamOffers() {
   try {
     const offers = toSteamOffers(JSON.parse(await fetchText(process.env.STEAM_SPECIALS_URL ?? STEAM_SPECIALS_URL)));
     if (!offers.length) throw new Error('no discounted items');
-    await writeJson('steam-offers.json', { updatedAt: new Date().toISOString(), offers });
+    const doc = { updatedAt: new Date().toISOString(), offers };
+    const parsed = steamOffersSchema.safeParse(doc);
+    if (!parsed.success) throw new Error(`invalid data: ${parsed.error.message}`);
+    await writeJson('steam-offers.json', doc);
     console.log(`steam: ${offers.length} offers`);
   } catch (err) {
     console.warn(`steam: keeping previous data (${err.message})`);
