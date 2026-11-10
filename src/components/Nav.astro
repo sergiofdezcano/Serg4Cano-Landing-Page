@@ -89,6 +89,7 @@ const { links } = Astro.props;
 
 <script>
   // Highlight the section currently in view
+  const list = document.querySelector<HTMLElement>('.nav__links');
   const links = [...document.querySelectorAll<HTMLAnchorElement>('.nav__links a')];
   const byId = new Map(links.map((a) => [a.hash.slice(1), a]));
   const io = new IntersectionObserver(
@@ -96,7 +97,14 @@ const { links } = Astro.props;
       for (const e of entries) {
         if (!e.isIntersecting) continue;
         links.forEach((a) => a.removeAttribute('aria-current'));
-        byId.get(e.target.id)?.setAttribute('aria-current', 'true');
+        const current = byId.get(e.target.id);
+        current?.setAttribute('aria-current', 'true');
+        // On phones the links scroll sideways: keep the current one in sight
+        if (current && list && list.scrollWidth > list.clientWidth) {
+          const x = current.getBoundingClientRect().left - list.getBoundingClientRect().left + list.scrollLeft;
+          const left = x - (list.clientWidth - current.offsetWidth) / 2;
+          list.scrollTo({ left, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        }
       }
     },
     { rootMargin: '-45% 0px -50% 0px' },

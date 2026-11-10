@@ -3,8 +3,10 @@ import Icon from './Icon.astro';
 import { videos, social, formatDate } from '../lib/data.js';
 import { cleanTitle } from '../lib/youtube.js';
 
-const [latest, ...rest] = videos.videos;
-const more = rest.slice(0, 6);
+// The latest video plays on the stage; the queue lists it plus the next six,
+// and any of them can be swapped onto the stage without leaving the page.
+const queue = videos.videos.slice(0, 7);
+const [latest] = queue;
 const thumb = (id: string, size = 'hqdefault') => `https://i.ytimg.com/vi/${id}/${size}.jpg`;
 ---
 
@@ -21,40 +23,63 @@ const thumb = (id: string, size = 'hqdefault') => `https://i.ytimg.com/vi/${id}/
           </a>
         </div>
 
-        <article class="feature">
-          <div class="player" data-video={latest.id}>
-            <img src={thumb(latest.id, 'maxresdefault')} alt="" width="1280" height="720" loading="lazy" />
-            <button class="player__play" type="button" aria-label={`Reproducir: ${cleanTitle(latest.title)}`}>
-              <Icon name="play" size={34} />
-            </button>
-          </div>
-          <div class="feature__meta">
-            <time class="label muted" datetime={latest.published}>
-              {formatDate(latest.published)}
-            </time>
-            <h3 class="feature__title">
-              <a href={latest.url} rel="noopener">
-                {cleanTitle(latest.title)}
-              </a>
-            </h3>
-          </div>
-        </article>
-
-        {more.length > 0 && (
-          <ul class="grid" role="list">
-            {more.map((v) => (
-              <li class="tile">
-                <a href={v.url} rel="noopener">
-                  <img src={thumb(v.id, 'mqdefault')} alt="" width="320" height="180" loading="lazy" />
-                  <span class="tile__title">{cleanTitle(v.title)}</span>
+        <div class="feature">
+          <article class="stage">
+            <div class="player" data-video={latest.id} data-title={cleanTitle(latest.title)}>
+              <img src={thumb(latest.id, 'maxresdefault')} alt="" width="1280" height="720" loading="lazy" />
+              <button class="player__play" type="button" aria-label={`Reproducir: ${cleanTitle(latest.title)}`}>
+                <Icon name="play" size={34} />
+              </button>
+            </div>
+            <div class="stage__meta">
+              <time class="label muted" datetime={latest.published} data-stage-date>
+                {formatDate(latest.published)}
+              </time>
+              <h3 class="stage__title">
+                <a href={latest.url} rel="noopener" data-stage-link>
+                  {cleanTitle(latest.title)}
                 </a>
-                <time class="label muted" datetime={v.published}>
-                  {formatDate(v.published)}
-                </time>
-              </li>
-            ))}
-          </ul>
-        )}
+              </h3>
+              <a class="stage__yt" href={latest.url} rel="noopener" data-stage-yt>
+                <Icon name="youtube" size={18} /> Comentar en YouTube <Icon name="arrow" size={16} />
+              </a>
+            </div>
+          </article>
+
+          {queue.length > 1 && (
+            <div class="queue-wrap">
+              <h3 class="queue__head label">Recientes</h3>
+              <ol class="queue" role="list">
+                {queue.map((v, i) => (
+                  <li class="queue__item">
+                    <a
+                      href={v.url}
+                      rel="noopener"
+                      data-id={v.id}
+                      data-title={cleanTitle(v.title)}
+                      data-published={v.published}
+                      data-date={formatDate(v.published)}
+                      aria-current={i === 0 ? 'true' : undefined}
+                    >
+                      <span class="queue__thumb">
+                        <img src={thumb(v.id, 'mqdefault')} alt="" width="320" height="180" loading="lazy" />
+                        <span class="queue__now" aria-hidden="true">
+                          <Icon name="play" size={14} />
+                        </span>
+                      </span>
+                      <span class="queue__text">
+                        <span class="queue__title">{cleanTitle(v.title)}</span>
+                        <time class="label muted" datetime={v.published}>
+                          {formatDate(v.published)}
+                        </time>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
@@ -63,20 +88,22 @@ const thumb = (id: string, size = 'hqdefault') => `https://i.ytimg.com/vi/${id}/
 <style>
   .feature {
     display: grid;
-    gap: 1.25rem;
+    gap: 2rem;
   }
   @media (min-width: 60rem) {
     .feature {
-      grid-template-columns: 2fr 1fr;
-      align-items: end;
-      gap: 2rem;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: start;
     }
   }
+
   .player {
     position: relative;
     aspect-ratio: 16 / 9;
     background: var(--ink-1);
     overflow: hidden;
+    view-transition-name: stage-player;
   }
   .player img,
   .player iframe {
@@ -110,87 +137,196 @@ const thumb = (id: string, size = 'hqdefault') => `https://i.ytimg.com/vi/${id}/
     background: var(--blue-fill);
     clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition:
+      background-color 0.2s,
+      scale 0.25s var(--ease-out);
   }
   .player__play:hover {
     background: var(--blue);
+    scale: 1.06;
   }
-  .feature__title {
+
+  .stage__meta {
+    margin-top: 1.25rem;
+    view-transition-name: stage-meta;
+  }
+  .stage__title {
     margin-top: 0.5rem;
     font-size: clamp(1.6rem, 3.2vw, 2.4rem);
     font-stretch: 90%;
     line-height: 1.05;
     letter-spacing: -0.015em;
   }
-  .feature__title a {
+  .stage__title a {
     text-decoration: none;
   }
-  .feature__title a:hover {
+  .stage__title a:hover {
     text-decoration: underline;
     text-decoration-color: var(--blue);
   }
 
-  .grid {
-    list-style: none;
-    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-    gap: 2rem 1.25rem;
-  }
-  @media (max-width: 40rem) {
-    .grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem 0.75rem;
-    }
-    .tile__title {
-      font-size: 0.95rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-  .tile a {
-    display: block;
+  .stage__yt {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-stretch: 80%;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
     text-decoration: none;
+    transition: color 0.2s;
   }
-  .tile img {
+  .stage__yt:hover {
+    color: var(--text);
+  }
+
+  /* Up-next queue: the same videos YouTube would list, playable in place */
+  .queue__head {
+    color: var(--muted);
+    font-size: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .queue {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .queue a {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0.75rem 0.5rem 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  @media (min-width: 60rem) {
+    .queue a {
+      grid-template-columns: 7.5rem 1fr;
+    }
+  }
+  .queue a:hover {
+    background: linear-gradient(90deg, var(--ink-1), transparent);
+  }
+  .queue__thumb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: var(--ink-1);
+  }
+  .queue__thumb img {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    background: var(--ink-1);
-    margin-bottom: 0.75rem;
-    outline: 2px solid transparent;
-    outline-offset: -2px;
-    transition: outline-color 0.2s;
+    transition:
+      filter 0.3s var(--ease-out),
+      transform 0.5s var(--ease-out);
   }
-  .tile a:hover img {
-    outline-color: var(--blue);
+  .queue a:hover .queue__thumb img {
+    transform: scale(1.05);
   }
-  .tile__title {
-    display: block;
+  .queue__now {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: rgb(0 112 224 / 0.72);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+  .queue__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+  .queue__title {
     font-weight: 700;
-    line-height: 1.3;
-    margin-bottom: 0.35rem;
+    font-size: 0.98rem;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
   }
-  .tile time {
-    font-size: 0.95rem;
+  .queue a:hover .queue__title {
+    color: var(--blue-hi);
+  }
+  .queue time {
+    font-size: 0.9rem;
+  }
+  /* The video on stage: tinted thumbnail with a play mark, title in blue */
+  .queue a[aria-current='true'] .queue__now {
+    opacity: 1;
+  }
+  .queue a[aria-current='true'] .queue__title {
+    color: var(--blue-hi);
   }
 </style>
 
 <script>
-  // Lite embed: load YouTube's player only after the visitor asks for it
-  document.querySelectorAll<HTMLElement>('.player').forEach((player) => {
-    player.querySelector('button')?.addEventListener('click', () => {
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${player.dataset.video}?autoplay=1&rel=0`;
-      iframe.title = 'Reproductor de YouTube';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      iframe.allowFullscreen = true;
-      player.replaceChildren(iframe);
-      iframe.focus();
-    });
+  // Lite embed: YouTube's player loads only after the visitor asks for it.
+  const player = document.querySelector<HTMLElement>('#videos .player');
+  const stageDate = document.querySelector<HTMLTimeElement>('[data-stage-date]');
+  const stageLink = document.querySelector<HTMLAnchorElement>('[data-stage-link]');
+  const stageYt = document.querySelector<HTMLAnchorElement>('[data-stage-yt]');
+  const queueLinks = [...document.querySelectorAll<HTMLAnchorElement>('#videos .queue a')];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const embed = (id: string, title: string) => {
+    if (!player) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    iframe.title = `Reproductor de YouTube: ${title}`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    player.dataset.video = id;
+    player.dataset.title = title;
+    player.replaceChildren(iframe);
+    iframe.focus({ preventScroll: true });
+  };
+
+  player?.querySelector('button')?.addEventListener('click', () => {
+    embed(player.dataset.video!, player.dataset.title!);
   });
+
+  queueLinks.forEach((link) =>
+    link.addEventListener('click', (event) => {
+      // Let new-tab and modified clicks open YouTube as usual
+      if (!player || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const { id, title, published, date } = link.dataset;
+
+      const swap = () => {
+        embed(id!, title!);
+        if (stageDate) {
+          stageDate.dateTime = published!;
+          stageDate.textContent = date!;
+        }
+        if (stageLink) {
+          stageLink.href = link.href;
+          stageLink.textContent = title!;
+        }
+        if (stageYt) stageYt.href = link.href;
+        queueLinks.forEach((a) => a.removeAttribute('aria-current'));
+        link.setAttribute('aria-current', 'true');
+      };
+
+      if ('startViewTransition' in document && !reduceMotion.matches) document.startViewTransition(swap);
+      else swap();
+
+      // On narrow screens the stage sits above the queue: bring it back into view
+      const box = player.getBoundingClientRect();
+      if (box.top < 0 || box.bottom > innerHeight) {
+        player.scrollIntoView({ block: 'center', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+      }
+    }),
+  );
 </script>
