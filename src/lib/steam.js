@@ -2,7 +2,7 @@
 // Prices come in euro cents because of cc=es.
 export const STEAM_SPECIALS_URL = 'https://store.steampowered.com/api/featuredcategories?cc=es&l=spanish';
 
-// Two full rows of the 3-column desktop grid.
+// Enough to fill the price list without turning it into a store.
 const MAX_OFFERS = 6;
 
 const isPrice = (v) => Number.isFinite(v) && v >= 0;

@@ -8,24 +8,38 @@ const year = new Date().getFullYear();
 <section class="contact" id="contacto" aria-labelledby="contact-title">
   <div class="stripes" aria-hidden="true"></div>
   <div class="wrap contact__inner">
-    <h2 class="contact__title" id="contact-title">¿Hacemos algo <span>juntos</span>?</h2>
-    <p class="contact__lead muted">Colaboraciones, patrocinios o propuestas para el canal: escríbeme.</p>
-    <a class="contact__mail" href={`mailto:${profile.email}`}>
-      <Icon name="mail" size={30} />
-      <span>{profile.email}</span>
-    </a>
+    <div class="contact__main">
+      <h2 class="contact__title" id="contact-title">¿Hacemos algo <span>juntos</span>?</h2>
+      <p class="contact__lead muted">Colaboraciones, patrocinios o propuestas para el canal: escríbeme.</p>
+      <div class="contact__mail-row">
+        <a class="contact__mail" href={`mailto:${profile.email}`}>
+          <Icon name="mail" size={30} />
+          <span>{profile.email}</span>
+        </a>
+        <button class="contact__copy" type="button" data-copy={profile.email}>
+          <Icon name="copy" size={18} />
+          <span data-copy-label>Copiar</span>
+        </button>
+        <span class="sr-only" role="status" data-copy-status></span>
+      </div>
+    </div>
 
-    <ul class="socials" role="list">
-      {
-        profile.socials.map((s) => (
-          <li>
-            <a href={s.url} rel="noopener" aria-label={`${s.label}: ${s.handle}`}>
-              <Icon name={s.id} size={24} />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="contact__side">
+      <h3 class="contact__side-title label">Sígueme</h3>
+      <ul class="socials" role="list">
+        {
+          profile.socials.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener">
+                <Icon name={s.id} size={22} />
+                <span class="socials__name">{s.label}</span>
+                <span class="socials__handle muted">{s.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 
   <footer class="wrap footer muted">
@@ -45,6 +59,15 @@ const year = new Date().getFullYear();
   }
   .contact__inner {
     padding-block: clamp(4rem, 10vw, 8rem) clamp(3rem, 6vw, 5rem);
+    display: grid;
+    gap: 3.5rem;
+  }
+  @media (min-width: 60rem) {
+    .contact__inner {
+      grid-template-columns: 1.5fr 1fr;
+      gap: 4rem;
+      align-items: end;
+    }
   }
   .contact__title {
     font-size: clamp(2.75rem, 9vw, 6rem);
@@ -60,11 +83,18 @@ const year = new Date().getFullYear();
     max-width: 46ch;
     font-size: 1.15rem;
   }
-  .contact__mail {
+  .contact__mail-row {
     margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.25rem;
+  }
+  .contact__mail {
     display: inline-flex;
     align-items: center;
     gap: 0.85rem;
+    min-width: 0;
     font-weight: 800;
     font-stretch: 90%;
     font-size: clamp(1.25rem, 4.6vw, 2.25rem);
@@ -72,32 +102,86 @@ const year = new Date().getFullYear();
     text-decoration-thickness: 3px;
     text-underline-offset: 0.25em;
     overflow-wrap: anywhere;
+    transition: color 0.2s;
   }
   .contact__mail:hover {
     color: var(--blue-hi);
   }
+  .contact__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 2px solid var(--line);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-stretch: 75%;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  .contact__copy:hover {
+    border-color: var(--blue);
+    background: rgb(0 131 255 / 0.16);
+  }
+  .contact__copy[data-copied] {
+    border-color: var(--blue-fill);
+    background: var(--blue-fill);
+  }
+
+  /* Every network by name, not a row of anonymous icons */
+  .contact__side-title {
+    color: var(--muted);
+    font-size: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
   .socials {
     list-style: none;
-    margin: 3rem 0 0;
+    margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr));
+    column-gap: 1.5rem;
   }
   .socials a {
     display: grid;
-    place-items: center;
-    width: 3.25rem;
-    height: 3.25rem;
-    border: 2px solid var(--line);
-    transition:
-      border-color 0.2s,
-      background-color 0.2s,
-      transform 0.25s var(--ease-out);
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 'icon name' 'icon handle';
+    align-items: center;
+    column-gap: 0.85rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
   }
-  .socials a:hover {
-    border-color: var(--blue);
-    background: var(--blue-fill);
+  .socials a :global(svg) {
+    grid-area: icon;
+    transition:
+      color 0.2s,
+      transform 0.3s var(--ease-out);
+  }
+  .socials__name {
+    grid-area: name;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .socials__handle {
+    grid-area: handle;
+    font-size: 0.92rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .socials a:hover .socials__name {
+    color: var(--blue-hi);
+  }
+  .socials a:hover :global(svg) {
+    color: var(--blue-hi);
     transform: translateY(-2px);
   }
   .footer {
@@ -113,3 +197,25 @@ const year = new Date().getFullYear();
     max-width: 60ch;
   }
 </style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.contact__copy');
+  const label = btn?.querySelector('[data-copy-label]');
+  const status = document.querySelector('[data-copy-status]');
+  btn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.copy!);
+    } catch {
+      // Clipboard blocked: the address stays on screen to copy by hand
+      return;
+    }
+    btn.dataset.copied = '';
+    if (label) label.textContent = 'Copiado';
+    if (status) status.textContent = 'Email copiado al portapapeles';
+    setTimeout(() => {
+      delete btn.dataset.copied;
+      if (label) label.textContent = 'Copiar';
+      if (status) status.textContent = '';
+    }, 1800);
+  });
+</script>

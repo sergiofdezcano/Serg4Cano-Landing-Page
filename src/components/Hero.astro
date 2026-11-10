@@ -24,9 +24,11 @@ const heroSocials = ['youtube', 'kick', 'twitch', 'instagram', 'x', 'discord'].m
           <span class="tabular">{schedule.time} {schedule.timezoneLabel}</span>
         </p>
         <p class="strip__count label tabular">
+          <span class="strip__dot" aria-hidden="true"></span>
           <span class="strip__state">Próximo directo</span>
           <span class="strip__clock" data-clock>—</span>
         </p>
+        <p class="strip__local" data-local hidden></p>
       </div>
 
       <div class="hero__cta">
@@ -181,10 +183,32 @@ const heroSocials = ['youtube', 'kick', 'twitch', 'instagram', 'x', 'discord'].m
   .strip__clock {
     color: var(--text);
   }
+  .strip__count {
+    align-items: center;
+  }
+  .strip__dot {
+    display: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--live);
+  }
+  .strip[data-live] .strip__dot {
+    display: block;
+    animation: live-pulse 1.6s var(--ease-out) infinite;
+  }
   .strip[data-live] .strip__state {
-    color: #fff;
-    background: var(--blue-fill);
-    padding: 0 0.4rem;
+    color: var(--text);
+  }
+  /* Visitors outside Spain see the next stream in their own clock */
+  .strip__local {
+    flex-basis: 100%;
+    font-size: 0.98rem;
+    color: var(--muted);
+  }
+  .strip__local strong {
+    color: var(--text);
+    font-weight: 700;
   }
 
   .hero__cta {
@@ -259,10 +283,38 @@ const heroSocials = ['youtube', 'kick', 'twitch', 'instagram', 'x', 'discord'].m
     const schedule = JSON.parse(strip.dataset.schedule!);
     const clock = strip.querySelector<HTMLElement>('[data-clock]')!;
     const state = strip.querySelector<HTMLElement>('.strip__state')!;
+    const local = strip.querySelector<HTMLElement>('[data-local]')!;
     const pad = (n: number) => String(n).padStart(2, '0');
+    const visitorZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const offset = (zone: string, at: Date) =>
+      new Date(at.toLocaleString('en-US', { timeZone: zone })).getTime() - new Date(at.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
 
+    // Same wall clock as Madrid? Then the schedule already reads right for this visitor.
+    const showLocal = (start: Date) => {
+      if (!visitorZone || offset(visitorZone, start) === offset(schedule.timezone, start)) {
+        local.hidden = true;
+        return;
+      }
+      const when = new Intl.DateTimeFormat('es', { weekday: 'long', hour: '2-digit', minute: '2-digit' }).format(start);
+      const city = visitorZone.split('/').pop()!.replace(/_/g, ' ');
+      local.innerHTML = '';
+      local.append('En tu hora (', city, '): ');
+      const strong = document.createElement('strong');
+      strong.textContent = when;
+      local.append(strong);
+      local.hidden = false;
+    };
+
+    let lastLive: boolean | undefined;
     const tick = () => {
       const slot = nextSlot(schedule);
+      if (slot.live !== lastLive) {
+        lastLive = slot.live;
+        // Shared with the nav, which marks the Directos link while a stream is on
+        document.documentElement.toggleAttribute('data-live', slot.live);
+        if (!slot.live) showLocal(new Date(Date.now() + slot.secondsUntil * 1000));
+        else local.hidden = true;
+      }
       if (slot.live) {
         strip.dataset.live = '';
         state.textContent = 'En horario de directo';

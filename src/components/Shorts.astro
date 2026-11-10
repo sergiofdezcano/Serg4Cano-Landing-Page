@@ -44,6 +44,11 @@ const shorts = videos.shorts;
           </li>
         ))}
       </ul>
+      <div class="wrap">
+        <div class="rail-progress" aria-hidden="true">
+          <span></span>
+        </div>
+      </div>
     </section>
   )
 }
@@ -70,9 +75,13 @@ const shorts = videos.shorts;
       border-color 0.2s,
       background-color 0.2s;
   }
-  .rail-btn:hover {
+  .rail-btn:hover:not(:disabled) {
     border-color: var(--blue);
     background: rgb(0 131 255 / 0.16);
+  }
+  .rail-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
   @media (hover: hover) and (min-width: 48rem) {
     .rail-btn {
@@ -92,10 +101,29 @@ const shorts = videos.shorts;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: var(--pad);
-    scrollbar-width: thin;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
   }
   .short {
     scroll-snap-align: start;
+  }
+
+  /* How far through the rail you are, drawn as the banner's blue rule */
+  .rail-progress {
+    margin-top: 0.75rem;
+    height: 3px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .rail-progress span {
+    display: block;
+    height: 100%;
+    background: var(--blue);
+    transform-origin: left;
+    transform: scaleX(var(--p, 0.1));
+    transition: transform 0.15s linear;
   }
   .short a {
     display: block;
@@ -140,9 +168,27 @@ const shorts = videos.shorts;
 
 <script>
   const rail = document.querySelector<HTMLElement>('.rail');
-  document.querySelectorAll<HTMLButtonElement>('.rail-btn').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      rail?.scrollBy({ left: Number(btn.dataset.dir) * rail.clientWidth * 0.8, behavior: 'smooth' });
-    }),
-  );
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.rail-btn')];
+  const bar = document.querySelector<HTMLElement>('.rail-progress');
+
+  if (rail) {
+    const update = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      const seen = (rail.scrollLeft + rail.clientWidth) / rail.scrollWidth;
+      bar?.style.setProperty('--p', String(Math.min(1, seen)));
+      bar?.toggleAttribute('hidden', max <= 1);
+      for (const btn of buttons) {
+        const dir = Number(btn.dataset.dir);
+        btn.disabled = dir < 0 ? rail.scrollLeft <= 1 : rail.scrollLeft >= max - 1;
+      }
+    };
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        rail.scrollBy({ left: Number(btn.dataset.dir) * rail.clientWidth * 0.8, behavior: 'smooth' });
+      }),
+    );
+    rail.addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
+    update();
+  }
 </script>

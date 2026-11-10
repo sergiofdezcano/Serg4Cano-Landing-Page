@@ -11,6 +11,7 @@
   --blue-fill: #0070e0; /* filled buttons: white text passes 4.5:1 */
   --text: #f2f5fb;
   --muted: #a3b0cb;
+  --live: #ff3d55; /* only for "on air" marks, never decoration */
 
   --font: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --gutter: clamp(1rem, 4vw, 3rem);
@@ -120,7 +121,7 @@ p {
 }
 
 .section {
-  padding-block: clamp(3.5rem, 7vw, 6rem);
+  padding-block: clamp(3rem, 6vw, 5rem);
   position: relative;
 }
 
@@ -141,6 +142,11 @@ p {
 
 .section-title .accent {
   color: var(--blue);
+}
+
+/* Supporting sections speak one step quieter than videos, shorts and live */
+.section-title--md {
+  font-size: clamp(2.1rem, 4.8vw, 3.4rem);
 }
 
 .sr-only {
@@ -199,6 +205,42 @@ p {
   background: repeating-linear-gradient(-55deg, var(--blue) 0 10px, transparent 10px 26px);
   opacity: 0.85;
   mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+
+/* The stripes run sideways as the page scrolls, like the banners in motion */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .stripes {
+      animation: stripes-run linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+@keyframes stripes-run {
+  to {
+    background-position: 480px 0;
+  }
+}
+
+/* "On air" pulse: hero strip and the Directos link in the nav */
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(255 61 85 / 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0.6rem rgb(255 61 85 / 0);
+  }
+}
+:root[data-live] .nav__links a[href='#directos']::after {
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-left: 0.4rem;
+  vertical-align: 0.15em;
+  border-radius: 50%;
+  background: var(--live);
+  animation: live-pulse 1.6s var(--ease-out) infinite;
 }
 
 .muted {
