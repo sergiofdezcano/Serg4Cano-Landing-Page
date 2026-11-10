@@ -8,7 +8,7 @@ test('renders every main section', async ({ page }) => {
   await page.goto('./');
   await expect(page).toHaveTitle(/Serg4Cano/);
   for (const id of sections) await expect(page.locator(id)).toBeVisible();
-  await expect(page.locator('#videos .grid li')).not.toHaveCount(0);
+  await expect(page.locator('#videos .queue li')).not.toHaveCount(0);
   await expect(page.locator('#shorts .short')).not.toHaveCount(0);
 });
 
@@ -64,6 +64,47 @@ test('play button swaps in the YouTube player', async ({ page }) => {
   await page.goto('./');
   await page.locator('.player__play').click();
   await expect(page.locator('.player iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed\//);
+});
+
+test('a video from the list plays on the stage without leaving the page', async ({ page }) => {
+  await page.goto('./');
+  const second = page.locator('#videos .queue a').nth(1);
+  const id = await second.getAttribute('data-id');
+  const title = await second.getAttribute('data-title');
+  await second.click();
+  await expect(page).toHaveURL(/\/Serg4Cano-Landing-Page\/?$/);
+  await expect(page.locator('#videos .player iframe')).toHaveAttribute('src', new RegExp(`/embed/${id}\\?`));
+  await expect(second).toHaveAttribute('aria-current', 'true');
+  await expect(page.locator('[data-stage-link]')).toHaveText(title);
+});
+
+test('shorts arrows reflect where the rail is', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('./');
+  await expect(page.locator('.rail-btn[data-dir="-1"]')).toBeDisabled();
+  await expect(page.locator('.rail-btn[data-dir="1"]')).toBeEnabled();
+});
+
+test('the stream schedule downloads as a weekly calendar', async ({ page, request }) => {
+  await page.goto('./');
+  const href = await page.locator('#directos a[download]').getAttribute('href');
+  const res = await request.get(href);
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type'] ?? '').toMatch(/text\/calendar/);
+  const body = await res.text();
+  expect(body).toContain('BEGIN:VCALENDAR');
+  expect(body).toMatch(/RRULE:FREQ=WEEKLY;BYDAY=/);
+});
+
+test('visitors outside Spain see the next stream in their own time', async ({ browser }) => {
+  const context = await browser.newContext({ timezoneId: 'America/Mexico_City' });
+  const page = await context.newPage();
+  await page.goto('./');
+  // During a stream the strip shows the live state instead
+  if (await page.locator('.strip[data-live]').count()) return context.close();
+  await expect(page.locator('.strip__local')).toBeVisible();
+  await expect(page.locator('.strip__local')).toContainText('En tu hora (Mexico City)');
+  await context.close();
 });
 
 test('no horizontal scroll on mobile', async ({ page }) => {

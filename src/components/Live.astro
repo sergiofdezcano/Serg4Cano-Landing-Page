@@ -3,6 +3,7 @@ import Icon from './Icon.astro';
 import { profile, social } from '../lib/data.js';
 
 const platforms = profile.streamPlatforms.map(social).filter(Boolean);
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <section class="section" id="directos" aria-labelledby="live-title">
@@ -15,6 +16,10 @@ const platforms = profile.streamPlatforms.map(social).filter(Boolean);
         {`${profile.schedule.time} ${profile.schedule.timezoneLabel}`}
       </p>
       <p class="muted">Emito a la vez en todas estas plataformas. Elige la que más uses.</p>
+      <a class="btn live__cal" href={`${base}directos.ics`} download="directos-serg4cano.ics">
+        <Icon name="calendar" /> Añadir a mi calendario
+      </a>
+      <p class="live__cal-note muted">Se añade cada directo en tu hora local.</p>
     </div>
 
     <ul class="platforms" role="list">
@@ -59,6 +64,13 @@ const platforms = profile.streamPlatforms.map(social).filter(Boolean);
   }
   .live__intro .muted {
     max-width: 34ch;
+  }
+  .live__cal {
+    margin-top: 1.75rem;
+  }
+  .live__cal-note {
+    margin-top: 0.6rem;
+    font-size: 0.95rem;
   }
 
   .platforms {
