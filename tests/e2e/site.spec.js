@@ -130,3 +130,17 @@ test('all internal assets resolve', async ({ page, request }) => {
   );
   for (const url of urls) expect((await request.get(url)).status(), url).toBe(200);
 });
+
+test('política de privacidad de Stream Autopilot', async ({ page }) => {
+  await page.goto('./privacidad/');
+  await expect(page).toHaveTitle(/Política de privacidad/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Política de privacidad/);
+  await expect(page.locator('main')).toContainText('Stream Autopilot');
+  await expect(page.locator('main')).toContainText('YouTube API Services');
+  await expect(page.locator('a[href="https://www.youtube.com/t/terms"]')).toHaveCount(1);
+  await expect(page.locator('a[href="https://policies.google.com/privacy"]')).toHaveCount(1);
+  await expect(page.locator('a[href="https://myaccount.google.com/permissions"]')).toHaveCount(1);
+  await expect(page.locator('a[href^="mailto:serg4cano@gmail.com"]')).toHaveCount(1);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
