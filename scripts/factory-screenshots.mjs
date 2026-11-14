@@ -7,14 +7,21 @@ const port = 4323;
 const url = `http://localhost:${port}/Serg4Cano-Landing-Page/`;
 const out = process.env.FACTORY_EVIDENCE_DIR ?? '.impeccable/review';
 
-const server = spawn(`npx astro preview --port ${port}`, { shell: true, stdio: 'ignore' });
+const server = spawn(`npx astro preview --port ${port} --ignore-lock`, {
+  shell: true,
+  stdio: 'ignore',
+  // Grupo de procesos propio para poder parar también a los hijos de la shell (npx → astro).
+  detached: process.platform !== 'win32',
+});
 const stop = () => {
   if (process.platform === 'win32') {
     try {
       execFileSync('taskkill', ['/pid', String(server.pid), '/T', '/F'], { stdio: 'ignore' });
     } catch {}
   } else {
-    server.kill('SIGTERM');
+    try {
+      process.kill(-server.pid, 'SIGTERM');
+    } catch {}
   }
 };
 
