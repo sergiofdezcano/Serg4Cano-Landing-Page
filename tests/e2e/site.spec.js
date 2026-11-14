@@ -114,6 +114,28 @@ test('no horizontal scroll on mobile', async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
+test('header muestra la marca Serg4Cano', async ({ page }) => {
+  await page.goto('./');
+  const brand = page.locator('.nav__brand');
+  await expect(brand).toHaveText('Serg4Cano');
+  await expect(brand).not.toHaveText('S4C');
+  await expect(brand.locator('span')).toHaveText('4');
+  await expect(brand).toHaveAttribute('href', '#top');
+  await expect(brand).toHaveAttribute('aria-label', 'Serg4Cano, volver arriba');
+});
+
+test('la marca cabe en una línea en móvil sin solaparse con el menú', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto('./');
+  const brand = await page.locator('.nav__brand').boundingBox();
+  const header = await page.locator('.nav__inner').boundingBox();
+  const menu = await page.locator('nav[aria-label="Secciones"]').boundingBox();
+  // 3.75rem header: two lines of the 1.375rem brand would not fit
+  expect(brand.height).toBeLessThanOrEqual(header.height);
+  expect(brand.x + brand.width).toBeLessThanOrEqual(menu.x);
+  expect(menu.width).toBeGreaterThan(0);
+});
+
 test('no accessibility violations (WCAG A/AA)', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('./');

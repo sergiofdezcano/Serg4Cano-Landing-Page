@@ -2,7 +2,7 @@
 
 Lo que un visitante puede hacer hoy, en orden de aparición:
 
-- **Navegación**: saltar a cada sección visible; incluye enlace "Saltar al contenido".
+- **Navegación**: saltar a cada sección visible; incluye enlace "Saltar al contenido". A la izquierda, la marca "Serg4Cano" (con el 4 en azul); al pulsarla se vuelve al inicio de la página.
 - **Navegación**: mientras toca directo, el enlace "Directos" lleva un punto rojo. En móvil, el menú se desplaza solo para que se vea la sección actual.
 - **Hero**: ver quién es Serg4Cano, ir a YouTube o Twitch con los botones principales y saltar a sus redes (YouTube, Kick, Twitch, Instagram, X y Discord) desde una fila de iconos. Las URLs salen de `profile.json`; TikTok solo aparece en Contacto. La cuenta atrás del próximo directo muestra también la hora en la zona horaria del visitante cuando no es la de Madrid.
 - **Vídeos**: ver el último vídeo en un reproductor ligero y, al lado, una lista con los 7 más recientes. Pulsar uno de la lista lo reproduce en la propia página (con Ctrl/Cmd o botón central se abre YouTube como siempre).
