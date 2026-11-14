@@ -5,7 +5,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL: 'http://localhost:4322/Serg4Cano-Landing-Page/' },
   webServer: {
-    command: 'npx astro preview --port 4322 --force',
+    command: 'npx astro preview --port 4322 --ignore-lock',
     url: 'http://localhost:4322/Serg4Cano-Landing-Page/',
     reuseExistingServer: !process.env.CI,
   },
